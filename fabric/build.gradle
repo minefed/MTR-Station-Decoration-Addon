@@ -31,6 +31,12 @@ repositories {
 shadowJar {
 }
 
+tasks.withType(Jar).configureEach {
+    from(rootProject.file("LICENSE.txt")) {
+        rename { "LICENSE-MSD.txt" }
+    }
+}
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(buildTools.javaLanguageVersion))

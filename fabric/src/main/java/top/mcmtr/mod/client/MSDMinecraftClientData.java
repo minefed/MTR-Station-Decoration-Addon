@@ -110,6 +110,8 @@ public final class MSDMinecraftClientData extends MSDClientData {
         public final Vec3d startVector;
         public final Vec3d endVector;
         private Catenary catenary;
+        private Catenary lightPositionsCatenary;
+        private BlockPos[] lightPositions;
 
         private CatenaryWrapper(Catenary catenary, String hexId, Position startPosition, Position endPosition) {
             this.catenary = catenary;
@@ -129,6 +131,19 @@ public final class MSDMinecraftClientData extends MSDClientData {
         public Catenary getCatenary() {
             return this.catenary;
         }
+
+        /**
+         * @return the light sampling position of each segment of the current catenary, in render order (cached until the catenary object is replaced)
+         */
+        public BlockPos[] getLightPositions() {
+            if (lightPositionsCatenary != catenary) {
+                final ObjectArrayList<BlockPos> blockPosList = new ObjectArrayList<>();
+                catenary.catenaryMath.render((x1, y1, z1, x2, y2, z2, count, i, base, sinX, sinZ, increment) -> blockPosList.add(org.mtr.mod.Init.newBlockPos(x1, y1, z1)));
+                lightPositions = blockPosList.toArray(new BlockPos[0]);
+                lightPositionsCatenary = catenary;
+            }
+            return lightPositions;
+        }
     }
 
     public static class RigidCatenaryWrapper {
@@ -137,6 +152,8 @@ public final class MSDMinecraftClientData extends MSDClientData {
         public final Vec3d startVector;
         public final Vec3d endVector;
         private RigidCatenary rigidCatenary;
+        private RigidCatenary lightPositionsRigidCatenary;
+        private BlockPos[] lightPositions;
 
         public RigidCatenaryWrapper(RigidCatenary rigidCatenary, String hexId, Position startPosition, Position endPosition) {
             this.rigidCatenary = rigidCatenary;
@@ -156,6 +173,19 @@ public final class MSDMinecraftClientData extends MSDClientData {
 
         public RigidCatenary getRigidCatenary() {
             return rigidCatenary;
+        }
+
+        /**
+         * @return the light sampling position of each segment of the current rigid catenary, in render order (cached until the rigid catenary object is replaced)
+         */
+        public BlockPos[] getLightPositions() {
+            if (lightPositionsRigidCatenary != rigidCatenary) {
+                final ObjectArrayList<BlockPos> blockPosList = new ObjectArrayList<>();
+                rigidCatenary.rigidCatenaryMath.render((x1, z1, x2, z2, x3, z3, x4, z4, x5, z5, x6, z6, x7, z7, x8, z8, y1, y2) -> blockPosList.add(org.mtr.mod.Init.newBlockPos(x1, y1, z1)));
+                lightPositions = blockPosList.toArray(new BlockPos[0]);
+                lightPositionsRigidCatenary = rigidCatenary;
+            }
+            return lightPositions;
         }
     }
 }

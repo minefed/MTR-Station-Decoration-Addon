@@ -5,7 +5,7 @@
 	"compatibilityLevel": "JAVA_8",
 	"refmap": "msd.refmap.json",
 	"mixins": [],
-	"client": ["RenderRailsMixin"],
+	"client": ["MinecraftClientDataMixin", "RenderRailsMixin"],
 	"server": [],
 	"injectors": {
 		"defaultRequire": 1

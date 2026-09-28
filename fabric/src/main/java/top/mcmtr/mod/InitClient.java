@@ -1,6 +1,7 @@
 package top.mcmtr.mod;
 
 import org.mtr.core.data.Station;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mapping.registry.RegistryClient;
@@ -21,6 +22,8 @@ public class InitClient {
     private static long lastMillis = 0;
     private static long gameMillis = 0;
     private static long lastUpdatePacketMillis = 0;
+    private static final Long2ObjectOpenHashMap<Station> STATION_CACHE = new Long2ObjectOpenHashMap<>();
+    private static MinecraftClientData stationCacheData;
     public static final RegistryClient REGISTRY_CLIENT = new RegistryClient(Init.REGISTRY);
 
     public static void init() {
@@ -207,7 +210,30 @@ public class InitClient {
         return ((itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemHold.TAG_HOLD) ? itemStack.getOrCreateTag().getInt(ItemHold.TAG_HOLD) / 10F : 0);
     }
 
+    /**
+     * Results are cached per block position and cleared whenever the MTR client data is synced (see {@link top.mcmtr.mixin.MinecraftClientDataMixin}) or replaced.
+     */
     public static Station findStation(BlockPos blockPos) {
-        return MinecraftClientData.getInstance().stations.stream().filter(station -> station.inArea(org.mtr.mod.Init.blockPosToPosition(blockPos))).findFirst().orElse(null);
+        synchronized (STATION_CACHE) {
+            final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
+            if (stationCacheData != minecraftClientData) {
+                STATION_CACHE.clear();
+                stationCacheData = minecraftClientData;
+            }
+            final long key = blockPos.asLong();
+            final Station cachedStation = STATION_CACHE.get(key);
+            if (cachedStation != null || STATION_CACHE.containsKey(key)) {
+                return cachedStation;
+            }
+            final Station station = minecraftClientData.stations.stream().filter(stationToCheck -> stationToCheck.inArea(org.mtr.mod.Init.blockPosToPosition(blockPos))).findFirst().orElse(null);
+            STATION_CACHE.put(key, station);
+            return station;
+        }
+    }
+
+    public static void clearStationCache() {
+        synchronized (STATION_CACHE) {
+            STATION_CACHE.clear();
+        }
     }
 }

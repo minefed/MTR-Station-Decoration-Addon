@@ -51,7 +51,8 @@ public abstract class MSDPacketRequestResponseBase extends PacketHandler {
                     Init.REGISTRY.sendPacketToClient(serverPlayerEntity, getInstance(responseJson.toString()));
                 }
             } else {
-                MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, getInstance(responseJson.toString())));
+                final String responseString = responseJson.toString();
+                MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, getInstance(responseString)));
             }
             runServerInbound(serverWorld, responseJson);
         }, SerializedDataBase.class);

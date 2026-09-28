@@ -30,9 +30,12 @@ import top.mcmtr.mod.config.Config;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class RenderYamanoteRailwaySign<T extends BlockYamanoteRailwaySign.BlockYamanoteRailwaySignEntity> extends BlockEntityRenderer<T> implements IBlock, IGui, IDrawing {
+
+    private static final Pattern ROUTE_NAME_SEPARATOR = Pattern.compile("\\|\\|");
 
     public RenderYamanoteRailwaySign(Argument argument) {
         super(argument);
@@ -188,7 +191,7 @@ public class RenderYamanoteRailwaySign<T extends BlockYamanoteRailwaySign.BlockY
             MinecraftClientData.getInstance().simplifiedRoutes.forEach(simplifiedRoute -> {
                 final int color = simplifiedRoute.getColor();
                 if (!addedColors.contains(color) && selectedIds.contains(color) && simplifiedRoute.getPlatforms().stream().anyMatch(simplifiedRoutePlatform -> platformIds.contains(simplifiedRoutePlatform.getPlatformId()))) {
-                    selectedRoutesSorted.add(new IntObjectImmutablePair<>(color, simplifiedRoute.getName().split("\\|\\|")[0]));
+                    selectedRoutesSorted.add(new IntObjectImmutablePair<>(color, ROUTE_NAME_SEPARATOR.split(simplifiedRoute.getName())[0]));
                     addedColors.add(color);
                 }
             });

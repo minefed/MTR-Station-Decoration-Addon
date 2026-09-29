@@ -170,6 +170,9 @@ public class InitClient {
             gameMillis = 0;
         });
 
+        // Do not keep the previous world's MTR client data reachable through the station cache after leaving it
+        REGISTRY_CLIENT.eventRegistryClient.registerClientDisconnect(InitClient::releaseStationCache);
+
         REGISTRY_CLIENT.eventRegistryClient.registerStartClientTick(() -> {
             incrementGameMillis();
             final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
@@ -234,6 +237,13 @@ public class InitClient {
     public static void clearStationCache() {
         synchronized (STATION_CACHE) {
             STATION_CACHE.clear();
+        }
+    }
+
+    private static void releaseStationCache() {
+        synchronized (STATION_CACHE) {
+            STATION_CACHE.clear();
+            stationCacheData = null;
         }
     }
 }

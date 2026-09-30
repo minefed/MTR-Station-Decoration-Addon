@@ -97,3 +97,5 @@ reobf {
 }
 
 assemble.dependsOn shadowJar
+
+apply from: rootProject.file("verification/light-type/gradle.gradle")

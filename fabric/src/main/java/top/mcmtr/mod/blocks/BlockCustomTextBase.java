@@ -34,12 +34,14 @@ public abstract class BlockCustomTextBase extends BlockChangeModelBase implement
     public abstract static class BlockCustomTextEntity extends BlockEntityExtension {
         private final int maxArrivals;
         private final String[] messages;
+        private final MessageParts[] messageParts;
         private static final String KEY_MESSAGE = "msd_custom_message";
 
         public BlockCustomTextEntity(BlockEntityType<?> type, BlockPos blockPos, BlockState blockState, int maxArrivals) {
             super(type, blockPos, blockState);
             this.maxArrivals = maxArrivals;
             this.messages = new String[maxArrivals];
+            this.messageParts = new MessageParts[maxArrivals];
         }
 
         @Override
@@ -68,6 +70,42 @@ public abstract class BlockCustomTextBase extends BlockChangeModelBase implement
                 }
             }
             return "";
+        }
+
+        /**
+         * Called on the render thread at the point where a row is drawn. Keep the
+         * message read here so edits between queued renders or sign faces remain visible.
+         */
+        public final MessageParts getMessageParts(int index) {
+            final String message = getMessage(index);
+            if (index < 0 || index >= maxArrivals) {
+                return new MessageParts(message);
+            }
+            MessageParts parts = messageParts[index];
+            if (parts == null || !parts.message.equals(message)) {
+                parts = new MessageParts(message);
+                messageParts[index] = parts;
+            }
+            return parts;
+        }
+
+        /** An immutable view of the exact String.split result; the array never escapes. */
+        public static final class MessageParts {
+            private final String message;
+            private final String[] parts;
+
+            private MessageParts(String message) {
+                this.message = message;
+                parts = message.split("\\|");
+            }
+
+            public int size() {
+                return parts.length;
+            }
+
+            public String get(int index) {
+                return parts[index];
+            }
         }
 
         @Override

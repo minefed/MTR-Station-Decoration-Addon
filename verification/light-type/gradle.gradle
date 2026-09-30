@@ -1,0 +1,18 @@
+// This must use the actual selected loader dependencies, never the recording fixtures.
+if (minecraftVersion == "1.20.4") {
+    sourceSets {
+        lightTypeContract {
+            java.srcDir rootProject.file("verification/light-type/src")
+            compileClasspath += sourceSets.main.compileClasspath
+            runtimeClasspath += sourceSets.main.runtimeClasspath
+        }
+    }
+    tasks.register("verifyLightTypeContract", JavaExec) {
+        group = "verification"
+        description = "Check BLOCK/SKY identity against this loader's resolved MTR and Minecraft classes"
+        dependsOn(tasks.named("lightTypeContractClasses"))
+        classpath = sourceSets.lightTypeContract.runtimeClasspath
+        mainClass = "top.mcmtr.verification.LightTypeContract"
+    }
+    check.dependsOn("verifyLightTypeContract")
+}

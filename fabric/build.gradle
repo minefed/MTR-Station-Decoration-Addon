@@ -65,3 +65,5 @@ remapJar {
     mustRunAfter(shadowJar)
     inputFile = file(shadowJar.archivePath)
 }
+
+apply from: rootProject.file("verification/light-type/gradle.gradle")

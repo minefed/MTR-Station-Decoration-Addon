@@ -1,0 +1,9 @@
+// Frozen method from 91cdd24f6fbf94a1b12f5432ce93d7168246e769.
+    private static int[] getLights(ClientWorld clientWorld, BlockPos[] lightPositions) {
+        final int[] lights = new int[lightPositions.length];
+        for (int index = 0; index < lightPositions.length; index++) {
+            final BlockPos blockPos = lightPositions[index];
+            lights[index] = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
+        }
+        return lights;
+    }

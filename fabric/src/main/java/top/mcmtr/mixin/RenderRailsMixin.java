@@ -172,7 +172,7 @@ public abstract class RenderRailsMixin {
         final int[] lights = new int[lightPositions.length];
         for (int index = 0; index < lightPositions.length; index++) {
             final BlockPos blockPos = lightPositions[index];
-            lights[index] = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
+            lights[index] = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.BLOCK, blockPos), clientWorld.getLightLevel(LightType.SKY, blockPos));
         }
         return lights;
     }

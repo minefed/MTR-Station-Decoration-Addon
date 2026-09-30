@@ -27,3 +27,28 @@ subprojects {
 		flatDir { dirs "../libs" }
 	}
 }
+
+// Isolated recording-boundary tests compile the real renderer/entity sources.
+// Only the 1.20.4 build is verified here; other supported MC builds keep their tasks.
+if (minecraftVersion == "1.20.4") {
+    final renderVerificationJava = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    tasks.register("verifyRenderReuse", Exec) {
+        group = "verification"
+        description = "Compare actual custom-text rendering and light queries with their frozen baseline"
+        commandLine providers.gradleProperty("pythonExecutable").getOrElse("python3"),
+                rootProject.file("tools/verify-render-reuse.py"), "--java-home",
+                renderVerificationJava.get().metadata.installationPath.asFile
+    }
+    tasks.register("verifyRenderReuseForge", Exec) {
+        group = "verification"
+        description = "Verify Forge's generated render sources match Fabric and preserve the same traces"
+        dependsOn(":forge:setupFiles")
+        commandLine providers.gradleProperty("pythonExecutable").getOrElse("python3"),
+                rootProject.file("tools/verify-render-reuse.py"), "--java-home",
+                renderVerificationJava.get().metadata.installationPath.asFile,
+                "--source-root", rootProject.file("forge/src/main/java"), "--verify-forge-parity"
+    }
+    check.dependsOn("verifyRenderReuse", "verifyRenderReuseForge")
+}

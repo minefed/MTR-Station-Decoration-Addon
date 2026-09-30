@@ -1,3 +1,4 @@
+// Frozen renderer from 91cdd24f6fbf94a1b12f5432ce93d7168246e769, class renamed only.
 package top.mcmtr.mod.render;
 
 import org.mtr.core.tool.Utilities;
@@ -14,7 +15,7 @@ import org.mtr.mod.render.QueuedRenderLayer;
 import top.mcmtr.mod.blocks.BlockCustomTextBase;
 import top.mcmtr.mod.config.Config;
 
-public class RenderCustomText<T extends BlockCustomTextBase.BlockCustomTextEntity> extends BlockEntityRenderer<T> implements IGui, Utilities {
+public class BaselineRenderCustomText<T extends BlockCustomTextBase.BlockCustomTextEntity> extends BlockEntityRenderer<T> implements IGui, Utilities {
     private final int maxArrivals;
     private final float scale;
     private final float fRowScale;
@@ -31,7 +32,7 @@ public class RenderCustomText<T extends BlockCustomTextBase.BlockCustomTextEntit
     /**
      * (总行高x0.8) / (行数x缩放倍数) = 文字高度
      */
-    public RenderCustomText(Argument argument, int maxArrivals, float startX, float startY, float startZ, float maxHeight, float maxWidth, boolean rotate90, float textPadding, float fRowTextPadding, float sRowTextPadding, float rowSpacing, int... colors) {
+    public BaselineRenderCustomText(Argument argument, int maxArrivals, float startX, float startY, float startZ, float maxHeight, float maxWidth, boolean rotate90, float textPadding, float fRowTextPadding, float sRowTextPadding, float rowSpacing, int... colors) {
         super(argument);
         this.maxArrivals = maxArrivals;
         this.scale = 160 * maxArrivals / maxHeight * textPadding;
@@ -69,13 +70,13 @@ public class RenderCustomText<T extends BlockCustomTextBase.BlockCustomTextEntit
 
     private void render(T entity, GraphicsHolder graphicsHolder, BlockPos blockPos, Vector3d offset, Direction facing, boolean rightAlign) {
         for (int i = 0; i < maxArrivals; i++) {
-            final BlockCustomTextBase.BlockCustomTextEntity.MessageParts text = entity.getMessageParts(i);
-            final String bigText = text.get(0);
+            String[] text = entity.getMessage(i).split("\\|");
+            final String bigText = text[0];
             String smallText = null;
             float finalBigScale = scale;
             float finalSmallScale = 0;
-            if (text.size() > 1) {
-                smallText = text.get(text.size() - 1);
+            if (text.length > 1) {
+                smallText = text[text.length - 1];
                 finalBigScale = fRowScale;
                 finalSmallScale = sRowScale;
             }
